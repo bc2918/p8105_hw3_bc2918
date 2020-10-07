@@ -7,14 +7,20 @@ output: github_document
 
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include = FALSE}
 library(tidyverse)
+library(arsenal)
+library(readr)
 library(p8105.datasets)
+
 knitr::opts_chunk$set(
 	fig.width = 6, 
   fig.asp = .6,
-  out.width = "90%"
+  out.width = "90%",
+	warning = FALSE
 )
+
+
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
 options(
   ggplot2.continuous.colour = "viridis",
@@ -86,4 +92,56 @@ instacart %>%
 		values_from = mean_hour
 	)
 ```
+
+## Problem 2
+
+This problem uses five weeks of accelerometer data collected on a 63 year-old male with BMI 25, who was admitted to the Advanced Cardiac Care Center of Columbia University Medical Center and diagnosed with congestive heart failure (CHF).
+
+Load, tidy, and otherwise wrangle the accelerometer data.
+```{r message = FALSE}
+# load the accel csv, transform the df from wide to long format
+accel_df = 
+  read_csv("./data/accel_data.csv") %>% 
+  janitor::clean_names() %>% 
+  pivot_longer(
+   cols = starts_with("activity_"),
+    names_to = "minute",
+    names_prefix = "activity_",
+    values_to = "activity_count"
+  ) %>% 
+  # encode data with reasonable variable classes, make the weekday ordered, add the weekend column
+  mutate(
+    week = as.integer(week),
+    day_id = as.integer(day_id),
+    day = as.factor(day),
+    day = ordered(day, levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")),
+    minute = as.integer(minute),
+    weekend = if_else(day %in% c("Saturday", "Sunday"), TRUE, FALSE)
+  ) %>% 
+  # sort by week, day and minute
+  arrange(week, day, minute)
+```
+
+```{r}
+# preview the df
+accel_df
+```
+
+
+The `accel_df` contains ``r nrow(accel_df)`` observations of ``r ncol(accel_df)`` variables related to accelerometer data collected on the male. The `week` is an integer variable indicating the nth week of the observation  (``r min(accel_df$week)` - `r max(accel_df$week)``); the `day_id` is an integer variable indicating a unique id of the specific day from ``r min(accel_df$day_id)`` to ``r max(accel_df$day_id)``; the `day` is an ordered factor variable indicate the day of the week; the `activity_count` is a double numeric variable represents the activity counts in each minute ranging from ``r min(accel_df$activity_count)`` to `r max(accel_df$activity_count)`; the `weekend` is a logical variable indicating whether the day is a weekend or not.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
