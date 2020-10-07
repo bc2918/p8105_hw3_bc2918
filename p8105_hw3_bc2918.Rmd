@@ -20,7 +20,6 @@ knitr::opts_chunk$set(
 	warning = FALSE
 )
 
-
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
 options(
   ggplot2.continuous.colour = "viridis",
@@ -129,6 +128,79 @@ accel_df
 
 
 The `accel_df` contains ``r nrow(accel_df)`` observations of ``r ncol(accel_df)`` variables related to accelerometer data collected on the male. The `week` is an integer variable indicating the nth week of the observation  (``r min(accel_df$week)` - `r max(accel_df$week)``); the `day_id` is an integer variable indicating a unique id of the specific day from ``r min(accel_df$day_id)`` to ``r max(accel_df$day_id)``; the `day` is an ordered factor variable indicate the day of the week; the `activity_count` is a double numeric variable represents the activity counts in each minute ranging from ``r min(accel_df$activity_count)`` to `r max(accel_df$activity_count)`; the `weekend` is a logical variable indicating whether the day is a weekend or not.
+
+Using the tidied dataset, aggregate accross minutes to create a total activity variable for each day, and create a table showing these totals. 
+
+```{r message = FALSE}
+# group by week and day
+activity_tbl = 
+  accel_df %>% 
+  group_by(week, day) %>% 
+  # add up activity count of each day
+  summarise(day_sum = sum(activity_count)) %>% 
+  # format the table into wide 
+  pivot_wider(
+    names_from = day,
+    values_from = day_sum
+  ) %>% 
+  knitr::kable()
+```
+
+```{r}
+# show table
+activity_tbl  
+```
+
+Visualize the trends of the total activity in the five week on each day.
+
+```{r message = FALSE}
+theme_set(theme_minimal() + theme(legend.position = "right"))
+# visualize the trends of the total activity variable
+ accel_df %>% 
+  group_by(week, day) %>% 
+  # add up activity count of each day
+  summarise(day_sum = sum(activity_count)) %>% 
+  ggplot(aes(x = day ,y = day_sum, group = week, color = week)) + 
+  geom_line() + 
+  geom_point() +
+  labs(
+    title = "Total Activity Counts of Each Day in the Week",
+    x = "Day of the Week",
+    y = "Day Activity Counts",
+    color = "Day of the week",
+    caption = "Accelerometer data collected from a 63 year-old male with BMI 25."
+    ) 
+  
+```
+
+No significant trend could be observed except for that in week 4 and week 5 very little activity was observed on Saturday and not many activities on Sunday. 
+
+Make a single-panel plot that shows the 24-hour activity time courses for each day and use color to indicate day of the week. 
+
+```{r message = FALSE}
+accel_df %>% 
+  group_by(day, minute) %>% 
+  # add up activity count of each day in the week across five weeks
+  summarise(weekday_sum = sum(activity_count)) %>% 
+  # plot with activity count of each day across five weeks against day time
+  ggplot(aes(x = minute, y = weekday_sum, color = day)) + 
+  geom_point(alpha = 0.3, size = 0.5) +
+  geom_smooth(size = 0.5, se = FALSE) +
+  labs(
+    title = "24-Hour Activity Time Courses for Each Day",
+    x = "24-hour of the Day (h)",
+    y = "Activity Level",
+    color = "Day of a Week",
+    caption = "Accelerometer data collected from a 63 year-old male with BMI 25."
+    ) +
+  scale_x_continuous(
+    breaks = c(seq(0, 1440, by = 60)),
+    labels = c(seq(0, 24, by = 1))
+    ) 
+
+```
+
+Generally, low activities levels could be observed from 23 pm to 5 am, when it was probably that the man was asleep. The activity levels peaked a little bit around the middle of each day (especially Sunday) and the end of each day (especially Friday).
 
 
 
