@@ -18,7 +18,8 @@ knitr::opts_chunk$set(
 	fig.width = 6, 
   fig.asp = .6,
   out.width = "90%",
-	warning = FALSE
+	warning = FALSE,
+	message = FALSE
 )
 
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
@@ -80,7 +81,7 @@ instacart %>%
 ```
 
 
-Apples vs ice cream..
+Apples vs. ice cream..
 
 ```{r}
 instacart %>% 
@@ -98,7 +99,7 @@ instacart %>%
 This problem uses five weeks of accelerometer data collected on a 63 year-old male with BMI 25, who was admitted to the Advanced Cardiac Care Center of Columbia University Medical Center and diagnosed with congestive heart failure (CHF).
 
 Load, tidy, and otherwise wrangle the accelerometer data.
-```{r message = FALSE}
+```{r}
 # load the accel csv, transform the df from wide to long format
 accel_df = 
   read_csv("./data/accel_data.csv") %>% 
@@ -132,7 +133,7 @@ The `accel_df` contains ``r nrow(accel_df)`` observations of ``r ncol(accel_df)`
 
 Using the tidied dataset, aggregate accross minutes to create a total activity variable for each day, and create a table showing these totals. 
 
-```{r message = FALSE}
+```{r}
 # group by week and day
 accel_df %>% 
   group_by(week, day) %>% 
@@ -148,7 +149,7 @@ accel_df %>%
 
 Visualize the trends of the total activity in the five week on each day.
 
-```{r message = FALSE}
+```{r}
 theme_set(theme_minimal() + theme(legend.position = "right"))
 # visualize the trends of the total activity variable
  accel_df %>% 
@@ -172,7 +173,7 @@ No significant trend could be observed except for that in week 4 and week 5 very
 
 Make a single-panel plot that shows the 24-hour activity time courses for each day and use color to indicate day of the week. 
 
-```{r message = FALSE}
+```{r}
 accel_df %>% 
   group_by(day, minute) %>% 
   # add up activity count of each day in the week across five weeks
@@ -195,7 +196,7 @@ accel_df %>%
 
 ```
 
-Generally, low activities levels could be observed from 23 pm to 5 am, when it was probably that the man was asleep. The activity levels peaked a little bit around the middle of each day (especially Sunday) and the end of each day (especially Friday), indicating there might be regular activities around that time.
+Generally, low activities levels could be observed from 23 p.m. to 5 a.m., when it was probably that the man was asleep. The activity levels peaked a little bit around the middle of each day (especially Sunday) and the end of each day (especially Friday), indicating there might be regular activities around that time.
 
 ## Problem 3
 
@@ -265,9 +266,9 @@ tidy_naoo_df %>%
   facet_grid(. ~ month)
 ```
 
-The average max temperature are well distributed around 0°C (~ -10°C - 10°C) and 27°C (~ 20°C - 35°C) in January and July respectively across the years. Few outliers could be observed. 
+The average max temperature are well distributed around 0°C (~ -10°C to 10°C) and 27°C (~ 20°C to 35°C) in January and July respectively across the years. Few outliers could be observed. 
 
-Plot `tmax` vs `tmin` for the full dataset.
+Plot `tmax` vs. `tmin` for the full dataset.
 ```{r}
 # plot with geom_hex(), x = tmin, y = tmax, the color indicates level of counts (density of points)
 tmax_tmin_plot = 
@@ -276,7 +277,7 @@ tmax_tmin_plot =
   ggplot(aes(x = tmin, y = tmax)) + 
   geom_hex() +
   labs(
-    title = "Max Temperature vs Min Temperature",
+    title = "Max Temperature vs. Min Temperature",
     x = "Max Temperature (°C)",
     y = "Min Temperature (°C)"
   ) +
@@ -310,11 +311,13 @@ snow_plot =
 
 Show two plots.
 ```{r}
-tmax_tmin_plot / snow_plot
+tmax_tmin_plot + snow_plot + plot_layout(widths = c(1, 3))
 ```
 
 
+The `tidy_naoo_df` contains ``r nrow(tidy_naoo_df)`` observations of ``r ncol(tidy_naoo_df)`` variables related to New York state weather data accessed from the NOAA National Climatic Data Center. The variable `id` contains id of ``r length(unique(tidy_naoo_df$id))`` stations that the data was collected from. The variable `year` (1981-2010), `month` and `day` contains the date information. The variable `prcp` is a double numeric variable containing data of precipitation with unit `mm`. The variable `snow` and `snwd` are integer variables containing data of snowfall and snow depth with units `mm`. The variable `tmax` and `tmin` are double numeric variables containing data of max and min temperatures with unit `°C`.  
 
+From the first plot in the two-panel plot, it could be observed that the tmax vs. tmin data points are generally distributed along a linear function with positive gradient and negative y-axis intercept, with a concentration between (-20°C, -10°C) and (20°C, 30°C). The second plot indicated that the distribution of snowfall amount in each year did not vary much and their mean values were pretty consistent around ~30 mm.
 
 
 
