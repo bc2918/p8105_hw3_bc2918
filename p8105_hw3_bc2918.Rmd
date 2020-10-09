@@ -230,6 +230,7 @@ Check the most commonly observed values in snowfall.
 ```{r}
 # count the occurrence of snow records and rank
 tidy_naoo_df %>% 
+  drop_na(snow) %>% 
   group_by(snow) %>% 
 	count(snow) %>% 
   ungroup() %>% 
@@ -294,7 +295,7 @@ snow_plot =
   filter(snow > 0 & snow < 100) %>%
   ggplot(aes(x = year, y = snow, group = year, fill = year, color = year)) +
   geom_violin() +
-  stat_summary(shape=23, size = 0.2, color = "black") +
+  stat_summary(shape = 23, size = 0.2, color = "black") +
     labs(
     title = "Snowfall (0 - 100 mm)",
     x = "Year",
@@ -311,13 +312,22 @@ snow_plot =
 
 Show two plots with Patchwork.
 ```{r}
-tmax_tmin_plot + snow_plot + plot_layout(widths = c(1, 2))
+tmax_tmin_plot + snow_plot 
+```
+
+Check missing values for each column.
+```{r}
+# sum the na in each variable
+tidy_naoo_df %>% 
+  is.na() %>% 
+  colSums() 
 ```
 
 
-The `tidy_naoo_df` contains ``r nrow(tidy_naoo_df)`` observations of ``r ncol(tidy_naoo_df)`` variables related to New York state weather data accessed from the NOAA National Climatic Data Center. The variable `id` contains id of ``r length(unique(tidy_naoo_df$id))`` stations that the data was collected from. The variable `year` (1981 - 2010), `month` and `day` contains the date information. The variable `prcp` is a double numeric variable containing data of precipitation with unit `mm`. The variable `snow` and `snwd` are integer variables containing data of snowfall and snow depth with units `mm`. The variable `tmax` and `tmin` are double numeric variables containing data of max and min temperatures with unit `°C`.  
+The `tidy_naoo_df` contains ``r nrow(tidy_naoo_df)`` observations of ``r ncol(tidy_naoo_df)`` variables related to New York state weather data accessed from the NOAA National Climatic Data Center. The variable `id` contains id of ``r length(unique(tidy_naoo_df$id))`` stations that the data was collected from. The variable `year` (1981 - 2010), `month` and `day` contains the date information. The variable `prcp` is a double numeric variable containing data of precipitation with unit `mm`. The variable `snow` and `snwd` are integer variables containing data of snowfall and snow depth with units `mm`. The variable `tmax` and `tmin` are double numeric variables containing data of max and min temperatures with unit `°C`. The number of missing values for each variable are shown above. The `prcp`, `snow` and `snwd` variable have few missing values compared with the data size. The `tmax` and `tmin` variable have relatively more missing values however. These values are ignored when plotting.  
 
 From the first plot in the two-panel plot, it could be observed that the tmax vs. tmin data points are generally distributed along a linear function with positive gradient and negative y-axis intercept, with a concentration between `(-20°C, -10°C)` and `(20°C, 30°C)`. The second plot indicated that the distribution of snowfall amount in each year did not vary much and their mean values were pretty consistent around `~30 mm`.
+
 
 
 
